@@ -1,0 +1,12 @@
+# Caddy сам получает и продлевает бесплатный TLS-сертификат Let's Encrypt для домена из переменной DOMAIN.
+# Условие: DNS-запись A вашего домена указывает на IP сервера, порты 80 и 443 открыты.
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	reverse_proxy frontend:8080
+}

@@ -1,0 +1,4 @@
+# Единые переводы строк (LF) — иначе на Windows файлы могут «ломаться» в Docker
+* text=auto eol=lf
+*.png binary
+*.jpg binary

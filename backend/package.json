@@ -1,0 +1,53 @@
+{
+  "name": "marketplace-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Маркетплейс (аналог Ozon): бэкенд на NestJS 12 + GraphQL + TypeORM + PostgreSQL",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main.js",
+    "lint": "oxlint src",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "seed": "node dist/database/seed/seed.cli.js",
+    "typeorm": "node --env-file-if-exists=.env ./node_modules/typeorm/cli.js",
+    "migration:generate": "npm run build && node --env-file-if-exists=.env ./node_modules/typeorm/cli.js migration:generate -d dist/database/data-source.js",
+    "migration:run": "node --env-file-if-exists=.env ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js",
+    "migration:revert": "node --env-file-if-exists=.env ./node_modules/typeorm/cli.js migration:revert -d dist/database/data-source.js",
+    "migration:show": "node --env-file-if-exists=.env ./node_modules/typeorm/cli.js migration:show -d dist/database/data-source.js",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@apollo/server": "^5.5.2",
+    "@as-integrations/express5": "^1.1.2",
+    "@nestjs/apollo": "^14.2.1",
+    "@nestjs/common": "^12.6.0",
+    "@nestjs/config": "^12.1.1",
+    "@nestjs/core": "^12.6.0",
+    "@nestjs/graphql": "^14.2.1",
+    "@nestjs/jwt": "^12.0.5",
+    "@nestjs/platform-express": "^12.6.0",
+    "@nestjs/throttler": "^6.8.0",
+    "@nestjs/typeorm": "^12.0.3",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "graphql": "^16.15.0",
+    "helmet": "^8.3.0",
+    "pg": "^8.23.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "typeorm": "^1.1.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^12.0.15",
+    "@nestjs/schematics": "^12.0.16",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "oxlint": "^1.94.0",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3"
+  }
+}

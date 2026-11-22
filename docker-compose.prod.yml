@@ -1,0 +1,85 @@
+# Боевой запуск на сервере:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+# Снаружи доступны только порты 80/443 (Caddy). БД и бэкенд в интернет не торчат.
+name: marketplace
+
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION:-18}-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:?Задайте DB_USER в .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Задайте DB_PASSWORD в .env}
+      POSTGRES_DB: ${DB_NAME:?Задайте DB_NAME в .env}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+    image: marketplace-backend:${APP_VERSION:-latest}
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET:?Задайте JWT_SECRET в .env (случайная строка от 32 символов)}
+      SEED_ON_START: ${SEED_ON_START:-false}
+      TRUST_PROXY_HOPS: "2" # Caddy -> nginx -> backend
+      CORS_ORIGINS: "" # фронтенд и API на одном домене, CORS не нужен
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_SHOW_DEMO_LOGIN: ${VITE_SHOW_DEMO_LOGIN:-false}
+        VITE_CURRENCY: ${VITE_CURRENCY:-RUB}
+    image: marketplace-frontend:${APP_VERSION:-latest}
+    restart: always
+    depends_on:
+      - backend
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  proxy:
+    image: caddy:2-alpine
+    restart: always
+    depends_on:
+      - frontend
+    environment:
+      DOMAIN: ${DOMAIN:?Задайте DOMAIN в .env (например shop.example.com)}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # здесь Caddy хранит выпущенные TLS-сертификаты — не удаляйте том
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
