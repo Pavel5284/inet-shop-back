@@ -22,7 +22,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
     image: marketplace-backend:${APP_VERSION:-latest}
     restart: always
     depends_on:
@@ -50,7 +50,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ../inet-shop-front
       args:
         VITE_SHOW_DEMO_LOGIN: ${VITE_SHOW_DEMO_LOGIN:-false}
         VITE_CURRENCY: ${VITE_CURRENCY:-RUB}

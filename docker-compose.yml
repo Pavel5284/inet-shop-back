@@ -26,7 +26,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
     restart: unless-stopped
     depends_on:
       db:
@@ -48,7 +48,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ../inet-shop-front
       args:
         VITE_SHOW_DEMO_LOGIN: "true"
     restart: unless-stopped
